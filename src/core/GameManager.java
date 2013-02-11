@@ -19,4 +19,18 @@ public class GameManager extends LinkedList<Game>{
 		
 		return false;
 	}
+	
+	public Game getById(int id) {
+		Iterator<Game> it = this.iterator();
+		
+		while(it.hasNext()) {
+			Game g = it.next();
+			
+			if(g.getId() == id) {
+				return g;
+			}
+		}
+		
+		return null;
+	}
 }

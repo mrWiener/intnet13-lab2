@@ -33,34 +33,38 @@ public class Engine {
 			
 			String str = request.readLine();
 			System.out.println(str);
-			/*StringTokenizer tokens = new StringTokenizer(str, " ?");
-			tokens.nextToken(); // Ordet GET
-			String requestedDocument = tokens.nextToken();*/
+			
+			int id = -1;
 			
 			while ((str = request.readLine()) != null && str.length() > 0) {
-				System.out.println(str);
+				//System.out.println(str);
 			
 				if(str.matches("^Cookie:.*gameId=\\d+")) {
 					Matcher m = cookieIdPattern.matcher(str);
 					
 					if (m.find()) {
-					    int id = Integer.parseInt(m.group(0).split("=")[1]);
-						System.out.println("id: " + id);
+					    id = Integer.parseInt(m.group(0).split("=")[1]);
 					}
 				}
 			}
 			
 			System.out.println("FšrfrŒgan klar.");
 			clientSocket.shutdownInput();
+			
+			Game g = null;
+			
+			if(id > -1 && games.exists(id)) {
+		    	g = resumeExistingGame(id);
+		    }
+			else {
+				g = createNewGame();
+			}
 
 			PrintStream response = new PrintStream(clientSocket.getOutputStream());
 			response.println("HTTP/1.1 200 OK");
 			response.println("Server : Guess game");
 			
-			/*if (requestedDocument.indexOf(".html") != -1)
-				response.println("Content-Type: text/html");
-*/
-			response.println("Set-Cookie: gameId=113131; expires=Wednesday,31-Dec-13 21:00:00 GMT");
+			response.println("Set-Cookie: gameId=" + g.getId() + "; expires=Wednesday,31-Dec-13 21:00:00 GMT");
 
 			response.println();
 			
@@ -74,6 +78,28 @@ public class Engine {
 			clientSocket.shutdownOutput();
 			clientSocket.close();
 		}
+	}
+	
+	public Game resumeExistingGame(int id) {
+		Game g = games.getById(id);
+		
+		System.out.println("Existing game with id " + g.getId() + " resumed.");
+		
+		return g;
+	}
+	
+	public Game createNewGame() {
+		Game g = new Game();
+		
+		while(games.exists(g.getId())) {
+			g = new Game();
+		}
+		
+		games.add(g);
+		
+		System.out.println("New game created with id " + g.getId());
+		
+		return g;
 	}
 	
 	public static void main(String[] args) throws IOException {

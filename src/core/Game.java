@@ -11,7 +11,7 @@ public class Game {
 	public Game() {
 		Random generator = new Random();
 		
-		id = generator.nextInt();
+		id = generator.nextInt(Integer.MAX_VALUE);
 		goal = generator.nextInt(100);
 		lastGuessed = -1;
 		attempts = 0;
