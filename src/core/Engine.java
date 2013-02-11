@@ -5,8 +5,15 @@ import java.net.*;
 import java.util.StringTokenizer;
 
 public class Engine {
+	private GameManager games;
 
-	public static void main(String[] args) throws IOException {
+	public Engine() throws IOException {
+		games = new GameManager();
+		
+		run();
+	}
+	
+	public void run() throws IOException {
 		System.out.println("Skapar Serversocket");
 		ServerSocket serverSocket = new ServerSocket(8888);
 
@@ -36,8 +43,6 @@ public class Engine {
 			
 			if (requestedDocument.indexOf(".html") != -1)
 				response.println("Content-Type: text/html");
-			if (requestedDocument.indexOf(".gif") != -1)
-				response.println("Content-Type: image/gif");
 
 			response.println("Set-Cookie: clientId=1; expires=Wednesday,31-Dec-13 21:00:00 GMT");
 
@@ -53,5 +58,9 @@ public class Engine {
 			clientSocket.shutdownOutput();
 			clientSocket.close();
 		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		new Engine();
 	}
 }
