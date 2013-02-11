@@ -12,10 +12,12 @@ import java.util.regex.Pattern;
 public class Engine {
 	private GameManager games;
 	Pattern cookieIdPattern;
+	Pattern paramsPattern;
 
 	public Engine() throws IOException {
 		games = new GameManager();
 		cookieIdPattern = Pattern.compile("gameId=\\d+");
+		paramsPattern = Pattern.compile("/[?]guess=([\\d]|[\\d]{2})");
 		
 		run();
 	}
@@ -34,13 +36,25 @@ public class Engine {
 			String str = request.readLine();
 			System.out.println(str);
 			
+			if(str.contains("favicon")) {
+				System.out.println("favicon request ignored.");
+				continue;
+			}
+			
 			int id = -1;
+			int guess = -1;
+			
+			Matcher m = paramsPattern.matcher(str);
+				
+			if(m.find()) {
+				guess = Integer.parseInt(m.group(0).split("=")[1]);
+			}
 			
 			while ((str = request.readLine()) != null && str.length() > 0) {
 				//System.out.println(str);
 			
 				if(str.matches("^Cookie:.*gameId=\\d+")) {
-					Matcher m = cookieIdPattern.matcher(str);
+					m = cookieIdPattern.matcher(str);
 					
 					if (m.find()) {
 					    id = Integer.parseInt(m.group(0).split("=")[1]);
@@ -52,6 +66,10 @@ public class Engine {
 			clientSocket.shutdownInput();
 			
 			Game g = null;
+			
+			if(guess > -1) {
+				System.out.println("Current guess: " + guess);
+			}
 			
 			if(id > -1 && games.exists(id)) {
 		    	g = resumeExistingGame(id);
@@ -70,8 +88,19 @@ public class Engine {
 			
 			response.println("<html>");
 			response.println("<head>");
+			response.println("<title>Guessing game</title>");
 			response.println("</head>");
 			response.println("<body>");
+			
+			response.println("<p>" + g.getCurrentGuess() + "</p>");
+			response.println("<p>" + g.getGuessResponse() + "</p>");
+			response.println("<p>" + g.getNumberOfGuesses() + "</p>");
+			
+			response.println("<form method='GET'>");
+			response.println("<input type='input' name='guess'/>");
+			response.println("<input type='submit' />");
+			response.println("</form>");
+			
 			response.println("</body>");
 			response.println("</html>");
 			
