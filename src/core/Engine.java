@@ -16,7 +16,7 @@ public class Engine {
 
 	public Engine() throws IOException {
 		games = new GameManager();
-		cookieIdPattern = Pattern.compile("gameId=\\d+");
+		cookieIdPattern = Pattern.compile("SESSIONID=\\d+");
 		paramsPattern = Pattern.compile("/[?]guess=([\\d]|[\\d]{2})");
 		
 		run();
@@ -53,7 +53,7 @@ public class Engine {
 			while ((str = request.readLine()) != null && str.length() > 0) {
 				//System.out.println(str);
 			
-				if(str.matches("^Cookie:.*gameId=\\d+")) {
+				if(str.matches("^Cookie:.*SESSIONID=\\d+")) {
 					m = cookieIdPattern.matcher(str);
 					
 					if (m.find()) {
@@ -82,7 +82,7 @@ public class Engine {
 			response.println("HTTP/1.1 200 OK");
 			response.println("Server : Guess game");
 			
-			response.println("Set-Cookie: gameId=" + g.getId() + "; expires=Wednesday,31-Dec-13 21:00:00 GMT");
+			response.println("Set-Cookie: SESSIONID=" + g.getId() + "; expires=Wednesday,31-Dec-13 21:00:00 GMT");
 
 			response.println();
 			
