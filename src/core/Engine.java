@@ -17,7 +17,7 @@ public class Engine {
 	public Engine() throws IOException {
 		games = new GameManager();
 		cookieIdPattern = Pattern.compile("SESSIONID=\\d+");
-		paramsPattern = Pattern.compile("/[?]guess=([\\d]|[\\d]{2})");
+		paramsPattern = Pattern.compile("/[?]guess=([\\d]{2}|[\\d])");
 		
 		run();
 	}
@@ -67,15 +67,18 @@ public class Engine {
 			
 			Game g = null;
 			
-			if(guess > -1) {
-				System.out.println("Current guess: " + guess);
-			}
-			
 			if(id > -1 && games.exists(id)) {
 		    	g = resumeExistingGame(id);
 		    }
 			else {
 				g = createNewGame();
+			}
+			
+			if(guess > -1) {
+				System.out.println("Current guess: " + guess);
+				if(g.guess(guess) == 0) {
+					games.remove(g);
+				}
 			}
 
 			PrintStream response = new PrintStream(clientSocket.getOutputStream());
